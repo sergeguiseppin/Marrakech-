@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Pronostic Golf Marrakech</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-dark: #1e4620;
+  --green-mid: #2d6a31;
+  --green-light: #e8f5e9;
+  --green-accent: #4caf50;
+  --gold: #f5b731;
+  --silver: #9e9e9e;
+  --bronze: #cd7f32;
+  --sand: #f5f0e8;
+  --text: #1a1a1a;
+  --text-muted: #6b6b6b;
+  --white: #ffffff;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--green-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.app {
+  max-width: 430px;
+  margin: 0 auto;
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--sand);
+  overflow: hidden;
+}
+
+/* ══════════════════════════════
+   SPLASH SCREEN
+══════════════════════════════ */
+#screen-splash {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--green-dark);
+  min-height: 100dvh;
+  padding: 40px 32px;
+  text-align: center;
+  gap: 0;
+}
+.splash-flag {
+  font-size: 64px;
+  margin-bottom: 28px;
+  line-height: 1;
+}
+.splash-sub {
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.55);
+  margin-bottom: 10px;
+}
+.splash-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 42px;
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.splash-year {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: rgba(255,255,255,.5);
+  margin-bottom: 48px;
+}
+.splash-btn {
+  background: #fff;
+  color: var(--green-dark);
+  border: none;
+  border-radius: 50px;
+  padding: 18px 48px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform .1s, background .15s;
+  letter-spacing: .02em;
+  margin-bottom: 20px;
+}
+.splash-btn:active { transform: scale(.96); background: #e8f5e9; }
+.splash-hint {
+  font-size: 12px;
+  color: rgba(255,255,255,.35);
+}
+
+/* ══════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════ */
+#screen-login {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.login-hdr {
+  background: var(--green-dark);
+  color: #fff;
+  padding: calc(env(safe-area-inset-top,0px) + 20px) 24px 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.login-hdr .sub { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; opacity: .6; margin-bottom: 6px; }
+.login-hdr h1 { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; margin-bottom: 4px; }
+.login-hdr p { font-size: 13px; opacity: .65; }
+.login-body { padding: 20px 16px 32px; display: flex; flex-direction: column; gap: 8px; }
+.login-label { font-size: 11px; font-weight: 500; color: var(--text-muted); letter-spacing: .07em; text-transform: uppercase; margin-bottom: 4px; }
+.login-btn {
+  background: var(--white);
+  border: 1px solid #e0dbd0;
+  border-radius: var(--radius-sm);
+  padding: 13px 16px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color .12s, background .12s, transform .08s;
+  width: 100%;
+}
+.login-btn:active { transform: scale(.98); background: var(--green-light); border-color: var(--green-accent); }
+.login-btn.voted { opacity: .4; pointer-events: none; }
+.login-btn .lav {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--green-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 500; color: var(--green-mid); flex-shrink: 0;
+}
+.login-btn.admin-btn .lav { background: #fff8e1; color: #8a6200; }
+.login-info { flex: 1; text-align: left; }
+.login-info .lname { font-size: 14px; font-weight: 500; color: var(--text); }
+.login-info .lsub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.voted-badge { font-size: 10px; background: #e8f5e9; color: var(--green-mid); padding: 3px 8px; border-radius: 10px; font-weight: 500; }
+.admin-badge { font-size: 10px; background: #fff8e1; color: #8a6200; padding: 3px 8px; border-radius: 10px; font-weight: 500; }
+
+/* ══════════════════════════════
+   APP SCREEN
+══════════════════════════════ */
+#screen-app {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+}
+.hdr {
+  background: var(--green-dark); color: #fff;
+  padding: calc(env(safe-area-inset-top,0px) + 12px) 16px 10px;
+  flex-shrink: 0; display: flex; align-items: center; gap: 10px;
+}
+.back-btn {
+  background: rgba(255,255,255,.15); border: none; border-radius: 20px;
+  padding: 6px 12px; color: #fff; font-size: 12px;
+  font-family: 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap;
+}
+.back-btn:active { background: rgba(255,255,255,.25); }
+.hdr-text { flex: 1; }
+.hdr-text .hdr-sub { font-size: 10px; opacity: .6; letter-spacing: .08em; text-transform: uppercase; }
+.hdr-text h2 { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 400; }
+.admin-chip { background: #fff8e1; color: #8a6200; font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: 10px; }
+.tabs {
+  display: flex; background: var(--green-dark);
+  padding: 0 16px 12px; gap: 6px; flex-shrink: 0;
+}
+.tab {
+  flex: 1; background: rgba(255,255,255,.12); border: none; border-radius: 20px;
+  padding: 7px 10px; color: rgba(255,255,255,.6);
+  font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer;
+}
+.tab.active { background: #fff; color: var(--green-dark); font-weight: 500; }
+.views { flex: 1; overflow: hidden; }
+.view { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding: 16px; gap: 14px; -webkit-overflow-scrolling: touch; }
+.view.on { display: flex; }
+
+.section-title { font-size: 11px; font-weight: 500; color: var(--text-muted); letter-spacing: .07em; text-transform: uppercase; }
+.podium-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.podium-slot {
+  background: #fff; border: 1.5px dashed #ccc; border-radius: var(--radius);
+  padding: 12px 8px 10px; text-align: center;
+  min-height: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+}
+.podium-slot.filled { border-style: solid; }
+.podium-slot.p1 { background: #fffbea; border-color: var(--gold); }
+.podium-slot.p2 { background: #f8f8f8; border-color: var(--silver); }
+.podium-slot.p3 { background: #fdf3ec; border-color: var(--bronze); }
+.slot-medal { font-size: 20px; }
+.slot-rank { font-size: 10px; color: var(--text-muted); }
+.slot-name { font-size: 11px; font-weight: 500; color: var(--text); line-height: 1.3; }
+.slot-empty { font-size: 11px; color: #bbb; font-weight: 400; }
+.slot-clr { background: none; border: none; font-size: 10px; color: var(--text-muted); cursor: pointer; font-family: 'DM Sans',sans-serif; padding: 2px 6px; border-radius: 4px; }
+.slot-clr:active { background: #eee; }
+.hint-bar { background: var(--green-light); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--green-mid); text-align: center; }
+.hint-bar strong { font-weight: 500; }
+.players-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
+.player-btn {
+  background: #fff; border: 1px solid #e0dbd0; border-radius: var(--radius-sm);
+  padding: 11px 12px; display: flex; align-items: center; gap: 10px;
+  cursor: pointer; font-family: 'DM Sans',sans-serif;
+  transition: border-color .12s, background .12s, transform .08s; text-align: left;
+}
+.player-btn:active { transform: scale(.97); background: var(--green-light); border-color: var(--green-accent); }
+.player-btn.used { opacity: .3; pointer-events: none; }
+.p-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: var(--green-mid); flex-shrink: 0; }
+.p-prenom { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.2; }
+.p-nom { font-size: 10px; color: var(--text-muted); }
+.submit-area { padding: 0 16px calc(env(safe-area-inset-bottom,0px) + 16px); flex-shrink: 0; }
+.submit-btn {
+  width: 100%; background: var(--green-dark); color: #fff;
+  border: none; border-radius: var(--radius); padding: 16px;
+  font-size: 15px; font-family: 'DM Sans',sans-serif; font-weight: 500;
+  cursor: pointer; transition: opacity .15s, transform .08s;
+}
+.submit-btn:disabled { opacity: .3; cursor: not-allowed; }
+.submit-btn:not(:disabled):active { transform: scale(.98); }
+
+.locked-banner {
+  background: #fff; border-radius: var(--radius); padding: 28px 20px;
+  text-align: center; border: 1px solid #e0dbd0;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.locked-banner .lock-icon { font-size: 36px; }
+.locked-banner h3 { font-family: 'DM Serif Display',serif; font-size: 22px; font-weight: 400; color: var(--green-dark); }
+.locked-banner p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.progress-bar-wrap { width: 100%; height: 8px; background: #e0dbd0; border-radius: 4px; overflow: hidden; }
+.progress-bar { height: 100%; background: var(--green-mid); border-radius: 4px; transition: width .5s ease; }
+.results-block { display: flex; flex-direction: column; gap: 6px; }
+.result-row { background: #fff; border-radius: var(--radius-sm); padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+.r-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--text); }
+.r-bar-wrap { width: 70px; height: 6px; background: #e8e4da; border-radius: 3px; overflow: hidden; }
+.r-bar { height: 100%; background: var(--green-mid); border-radius: 3px; transition: width .7s ease; }
+.r-pct { font-size: 12px; color: var(--text-muted); min-width: 32px; text-align: right; }
+.votes-total { font-size: 12px; color: var(--text-muted); text-align: center; padding: 2px 0 4px; }
+.success-card { background: #fff; border-radius: var(--radius); padding: 20px; text-align: center; border: 1px solid #e0dbd0; }
+.success-card .s-icon { font-size: 36px; margin-bottom: 8px; }
+.success-card h3 { font-family: 'DM Serif Display',serif; font-size: 20px; font-weight: 400; color: var(--green-dark); margin-bottom: 4px; }
+.success-card p { font-size: 13px; color: var(--text-muted); }
+.recap-row { display: flex; gap: 8px; }
+.recap-slot { flex: 1; background: var(--sand); border-radius: var(--radius-sm); padding: 10px 6px; text-align: center; }
+.recap-medal { font-size: 16px; }
+.recap-name { font-size: 11px; font-weight: 500; color: var(--text); margin-top: 3px; line-height: 1.3; }
+.spacer { height: 8px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══ SPLASH ══ -->
+  <div id="screen-splash">
+    <div class="splash-flag">⛳</div>
+    <div class="splash-sub">Compétition Golf</div>
+    <div class="splash-title">Pronostics</div>
+    <div class="splash-year">Marrakech 2025</div>
+    <button class="splash-btn" onclick="openApp()">Faire mon pronostic</button>
+    <div class="splash-hint">14 participants · 1 vote par personne</div>
+  </div>
+
+  <!-- ══ LOGIN ══ -->
+  <div id="screen-login">
+    <div class="login-hdr">
+      <div class="sub">Compétition Golf · Marrakech 2025</div>
+      <h1>Qui êtes-vous ?</h1>
+      <p>Choisissez votre nom pour voter</p>
+    </div>
+    <div class="login-body">
+      <div class="login-label">Les participants</div>
+      <div id="login-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ APP ══ -->
+  <div id="screen-app">
+    <div class="hdr">
+      <button class="back-btn" onclick="logout()">← Retour</button>
+      <div class="hdr-text">
+        <div class="hdr-sub">Marrakech 2025</div>
+        <h2 id="hdr-name">—</h2>
+      </div>
+      <span class="admin-chip" id="admin-chip" style="display:none">Admin</span>
+    </div>
+    <div class="tabs">
+      <button class="tab active" id="tab-prono" onclick="switchTab('prono')">Mon pronostic</button>
+      <button class="tab" id="tab-results" onclick="switchTab('results')">Résultats</button>
+    </div>
+    <div class="views">
+      <div class="view on" id="v-prono">
+        <div class="section-title">Votre podium</div>
+        <div class="podium-row">
+          <div class="podium-slot" id="slot-0"><div class="slot-medal">🥇</div><div class="slot-rank">1re place</div><div class="slot-name slot-empty" id="sname-0">À choisir</div><button class="slot-clr" id="sclr-0" onclick="clearSlot(0)" style="display:none">effacer</button></div>
+          <div class="podium-slot" id="slot-1"><div class="slot-medal">🥈</div><div class="slot-rank">2e place</div><div class="slot-name slot-empty" id="sname-1">À choisir</div><button class="slot-clr" id="sclr-1" onclick="clearSlot(1)" style="display:none">effacer</button></div>
+          <div class="podium-slot" id="slot-2"><div class="slot-medal">🥉</div><div class="slot-rank">3e place</div><div class="slot-name slot-empty" id="sname-2">À choisir</div><button class="slot-clr" id="sclr-2" onclick="clearSlot(2)" style="display:none">effacer</button></div>
+        </div>
+        <div class="hint-bar" id="hint-bar">Appuyez sur un joueur pour le placer <strong id="hint-rank">1re</strong></div>
+        <div class="section-title">Les 14 participants</div>
+        <div class="players-grid" id="players-grid"></div>
+        <div class="spacer"></div>
+      </div>
+      <div class="view" id="v-results">
+        <div id="results-content"></div>
+        <div class="spacer"></div>
+      </div>
+      <div class="view" id="v-success">
+        <div class="success-card">
+          <div class="s-icon">✅</div>
+          <h3>Pronostic enregistré !</h3>
+          <p>Bonne chance sur les greens de Marrakech !</p>
+        </div>
+        <div class="section-title">Votre pronostic</div>
+        <div class="recap-row">
+          <div class="recap-slot"><div class="recap-medal">🥇</div><div class="recap-name" id="rc-0">—</div></div>
+          <div class="recap-slot"><div class="recap-medal">🥈</div><div class="recap-name" id="rc-1">—</div></div>
+          <div class="recap-slot"><div class="recap-medal">🥉</div><div class="recap-name" id="rc-2">—</div></div>
+        </div>
+        <div class="spacer"></div>
+      </div>
+    </div>
+    <div class="submit-area" id="submit-area">
+      <button class="submit-btn" id="submit-btn" disabled onclick="submitProno()">Valider mon pronostic</button>
+    </div>
+  </div>
+
+</div>
+<script>
+const PLAYERS = [
+  {nom:"ASLANIAN",   prenom:"Michel"},
+  {nom:"COGNET",     prenom:"Christophe"},
+  {nom:"CROZES",     prenom:"Bernard"},
+  {nom:"DETHES",     prenom:"Lionel"},
+  {nom:"GALLIX",     prenom:"François"},
+  {nom:"GUISEPPIN",  prenom:"Serge"},
+  {nom:"LADET",      prenom:"Guillaume"},
+  {nom:"LIRON",      prenom:"Ludo"},
+  {nom:"PEYTAVI",    prenom:"Thomas"},
+  {nom:"PLANCHON",   prenom:"Etienne"},
+  {nom:"PLANCHON N", prenom:"Nicolas"},
+  {nom:"SCOLLO",     prenom:"Fabrice"},
+  {nom:"SECHAUD",    prenom:"Marc"},
+  {nom:"TOSI",       prenom:"Christophe"}
+];
+const ADMIN_KEY = "GUISEPPIN";
+const TOTAL = PLAYERS.length;
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem('mgProno2025') || 'null') || initState(); }
+  catch(e) { return initState(); }
+}
+function initState() {
+  const s = {voted:{}, votes:{1:{},2:{},3:{}}};
+  PLAYERS.forEach(p => { s.votes[1][p.nom]=0; s.votes[2][p.nom]=0; s.votes[3][p.nom]=0; });
+  return s;
+}
+function saveState(s) { try { localStorage.setItem('mgProno2025', JSON.stringify(s)); } catch(e){} }
+
+let STATE = loadState();
+let currentUser = null;
+let isAdmin = false;
+let picks = [null,null,null];
+let hasVoted = false;
+
+function show(id) {
+  ['screen-splash','screen-login','screen-app'].forEach(s => {
+    const el = document.getElementById(s);
+    el.style.display = 'none';
+  });
+  const target = document.getElementById(id);
+  target.style.display = id === 'screen-app' ? 'flex' : 'flex';
+  target.style.flexDirection = 'column';
+  if (id === 'screen-app') { target.style.flex = '1'; target.style.overflow = 'hidden'; }
+  if (id === 'screen-login') { target.style.flex = '1'; }
+}
+
+function openApp() { show('screen-login'); buildLoginList(); }
+
+function buildLoginList() {
+  STATE = loadState();
+  const list = document.getElementById('login-list');
+  list.innerHTML = '';
+  PLAYERS.forEach(p => {
+    const initials = (p.prenom[0]||'') + (p.nom[0]||'');
+    const alreadyVoted = !!STATE.voted[p.nom];
+    const isAdm = p.nom === ADMIN_KEY;
+    const btn = document.createElement('button');
+    btn.className = 'login-btn' + (isAdm ? ' admin-btn' : '') + (alreadyVoted && !isAdm ? ' voted' : '');
+    btn.innerHTML = `<div class="lav">${initials}</div><div class="login-info"><div class="lname">${p.prenom} ${p.nom}</div><div class="lsub">${isAdm ? 'Administrateur' : alreadyVoted ? 'A déjà voté' : 'Appuyez pour voter'}</div></div>${isAdm ? '<span class="admin-badge">Admin</span>' : alreadyVoted ? '<span class="voted-badge">Voté ✓</span>' : ''}`;
+    if (!alreadyVoted || isAdm) btn.onclick = () => login(p);
+    list.appendChild(btn);
+  });
+}
+
+function login(p) {
+  currentUser = p.nom;
+  isAdmin = p.nom === ADMIN_KEY;
+  hasVoted = !!STATE.voted[p.nom] && !isAdmin;
+  picks = [null,null,null];
+  document.getElementById('hdr-name').textContent = p.prenom + ' ' + p.nom;
+  document.getElementById('admin-chip').style.display = isAdmin ? 'inline-block' : 'none';
+  show('screen-app');
+  if (hasVoted) { showVotedState(); }
+  else { document.getElementById('submit-area').style.display = ''; switchTab('prono'); initGrid(); updatePodium(); }
+}
+
+function logout() { show('screen-login'); buildLoginList(); }
+
+function initGrid() {
+  const g = document.getElementById('players-grid'); g.innerHTML = '';
+  PLAYERS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'player-btn' + (picks.includes(p.nom) ? ' used' : '');
+    btn.innerHTML = `<div class="p-avatar">${p.prenom[0]}${p.nom[0]}</div><div><div class="p-prenom">${p.prenom}</div><div class="p-nom">${p.nom}</div></div>`;
+    btn.onclick = () => pickPlayer(p.nom);
+    g.appendChild(btn);
+  });
+}
+
+function updatePodium() {
+  for (let i = 0; i < 3; i++) {
+    const slot = document.getElementById('slot-'+i);
+    const nameEl = document.getElementById('sname-'+i);
+    const clr = document.getElementById('sclr-'+i);
+    slot.className = 'podium-slot';
+    if (picks[i]) {
+      const pl = PLAYERS.find(x => x.nom === picks[i]);
+      nameEl.textContent = pl.prenom + ' ' + pl.nom;
+      nameEl.className = 'slot-name';
+      slot.classList.add('filled', ['p1','p2','p3'][i]);
+      clr.style.display = 'inline-block';
+    } else {
+      nameEl.textContent = 'À choisir'; nameEl.className = 'slot-name slot-empty'; clr.style.display = 'none';
+    }
+  }
+  const fi = picks.indexOf(null);
+  const hint = document.getElementById('hint-bar');
+  if (fi < 0) { hint.innerHTML = 'Podium complet — vous pouvez valider !'; hint.style.background = '#c8e6c9'; }
+  else { hint.innerHTML = `Appuyez sur un joueur pour le placer <strong>${['1re','2e','3e'][fi]}</strong>`; hint.style.background = ''; }
+  document.getElementById('submit-btn').disabled = picks.some(x => !x);
+  initGrid();
+}
+
+function pickPlayer(nom) {
+  if (picks.includes(nom)) return;
+  const s = picks.indexOf(null); if (s < 0) return;
+  picks[s] = nom; updatePodium();
+}
+
+function clearSlot(i) { picks[i] = null; updatePodium(); }
+
+function submitProno() {
+  if (picks.some(x => !x)) return;
+  STATE = loadState();
+  [1,2,3].forEach(r => { STATE.votes[r][picks[r-1]] = (STATE.votes[r][picks[r-1]]||0)+1; });
+  STATE.voted[currentUser] = picks.slice();
+  saveState(STATE);
+  hasVoted = true;
+  const p = i => { const pl = PLAYERS.find(x => x.nom === picks[i]); return pl ? pl.prenom+' '+pl.nom : ''; };
+  document.getElementById('rc-0').textContent = p(0);
+  document.getElementById('rc-1').textContent = p(1);
+  document.getElementById('rc-2').textContent = p(2);
+  document.getElementById('submit-area').style.display = 'none';
+  switchViewDirect('success');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-results').classList.add('active');
+}
+
+function renderResults() {
+  const el = document.getElementById('results-content');
+  const voted = Object.keys(STATE.voted).length;
+  const canSee = isAdmin || voted >= TOTAL;
+  if (!canSee) {
+    const pct = Math.round(voted/TOTAL*100);
+    el.innerHTML = `<div class="locked-banner"><div class="lock-icon">🔒</div><h3>Résultats verrouillés</h3><p>Les résultats seront révélés lorsque les <strong>${TOTAL} joueurs</strong> auront voté.</p><div style="width:100%;margin-top:6px;"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px;"><span>${voted} / ${TOTAL} pronostics reçus</span><span>${pct}%</span></div><div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div></div></div>`;
+    return;
+  }
+  let html = `<div class="votes-total">${voted} pronostic${voted>1?'s':''} soumis</div>`;
+  if (isAdmin) html += `<div style="background:#fff8e1;border-radius:8px;padding:10px 14px;font-size:12px;color:#8a6200;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px;"><span>Vue admin · ${voted < TOTAL ? (TOTAL-voted)+' joueur'+(TOTAL-voted>1?'s':'')+' n\'a pas encore voté' : 'Tous les joueurs ont voté'}</span><button onclick="resetAll()" style="background:#c0392b;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;white-space:nowrap;">🗑 Réinitialiser</button></div>`;
+  // Detail par place — % sur nb de votants
+  [[1,'🥇 1re place'],[2,'🥈 2e place'],[3,'🥉 3e place']].forEach(([rank,label]) => {
+    const sorted = Object.entries(STATE.votes[rank]).sort((a,b)=>b[1]-a[1]).filter(x=>x[1]>0).slice(0,14);
+    html += `<div class="section-title">${label}</div><div class="results-block">`;
+    if (!sorted.length) { html += `<div style="font-size:12px;color:#999;padding:6px 0;text-align:center">Aucun vote</div>`; }
+    else {
+      const maxV = sorted[0][1];
+      sorted.forEach(([nom,cnt]) => {
+        const pl = PLAYERS.find(x=>x.nom===nom);
+        const name = pl ? pl.prenom+' '+pl.nom : nom;
+        const pct = voted>0 ? Math.round(cnt/voted*100) : 0;
+        const w = maxV>0 ? Math.round(cnt/maxV*100) : 0;
+        html += `<div class="result-row"><div class="r-name">${name}</div><div class="r-bar-wrap"><div class="r-bar" data-w="${w}" style="width:0%"></div></div><div class="r-pct">${pct}%</div></div>`;
+      });
+    }
+    html += `</div>`;
+  });
+
+  // Synthese podium — tous ceux cites toutes places confondues
+  const podiumScore = {};
+  [1,2,3].forEach(rank => {
+    Object.entries(STATE.votes[rank]).forEach(([nom,cnt]) => {
+      if (cnt>0) podiumScore[nom] = (podiumScore[nom]||0) + cnt;
+    });
+  });
+  const podiumSorted = Object.entries(podiumScore).sort((a,b)=>b[1]-a[1]);
+  if (podiumSorted.length>0) {
+    const maxScore = podiumSorted[0][1];
+    const totalCitations = voted * 3;
+    html += `<div class="section-title" style="margin-top:4px;">🏆 Cités sur le podium</div>`;
+    html += `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;padding:0 2px;">% de citations sur l'ensemble des ${totalCitations} votes podium</div>`;
+    html += `<div class="results-block">`;
+    podiumSorted.forEach(([nom,score]) => {
+      const pl = PLAYERS.find(x=>x.nom===nom);
+      const name = pl ? pl.prenom+' '+pl.nom : nom;
+      const pct = totalCitations>0 ? Math.round(score/totalCitations*100) : 0;
+      const w = maxScore>0 ? Math.round(score/maxScore*100) : 0;
+      html += `<div class="result-row"><div class="r-name">${name}</div><div style="font-size:11px;color:var(--text-muted);min-width:28px;text-align:center;flex-shrink:0">${score}x</div><div class="r-bar-wrap"><div class="r-bar" data-w="${w}" style="width:0%"></div></div><div class="r-pct">${pct}%</div></div>`;
+    });
+    html += `</div>`;
+  }
+
+  el.innerHTML = html;
+  setTimeout(() => { el.querySelectorAll('.r-bar').forEach(b => b.style.width = b.dataset.w+'%'); }, 100);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if (tab === 'results') { renderResults(); switchViewDirect('results'); }
+  else switchViewDirect('prono');
+}
+
+function switchViewDirect(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  document.getElementById('v-'+id).classList.add('on');
+}
+
+function showVotedState() {
+  const myVote = STATE.voted[currentUser];
+  if (myVote) {
+    [0,1,2].forEach(i => {
+      const pl = PLAYERS.find(x=>x.nom===myVote[i]);
+      document.getElementById('rc-'+i).textContent = pl ? pl.prenom+' '+pl.nom : '';
+    });
+  }
+  document.getElementById('submit-area').style.display = 'none';
+  document.getElementById('tab-prono').textContent = 'Mon vote';
+  switchViewDirect('success');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-results').classList.add('active');
+}
+
+function resetAll() {
+  if (!isAdmin) return;
+  if (!confirm('Réinitialiser tous les votes ? Cette action est irréversible.')) return;
+  localStorage.removeItem('mgProno2025');
+  STATE = initState();
+  saveState(STATE);
+  picks = [null,null,null];
+  hasVoted = false;
+  alert('Tous les votes ont été effacés.');
+  show('screen-login');
+  buildLoginList();
+}
+
+document.getElementById('screen-login').style.display = 'none';
+document.getElementById('screen-app').style.display = 'none';
+</script>
+</body>
+</html>
