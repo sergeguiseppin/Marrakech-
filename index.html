@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Pronostic Golf Marrakech</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
 :root {
   --green-dark: #1e4620;
@@ -357,18 +359,64 @@ const PLAYERS = [
 const ADMIN_KEY = "GUISEPPIN";
 const TOTAL = PLAYERS.length;
 
-function loadState() {
-  try { return JSON.parse(localStorage.getItem('mgProno2025') || 'null') || initState(); }
-  catch(e) { return initState(); }
-}
+// ── FIREBASE ──
+const firebaseConfig = {
+  apiKey: "AIzaSyDCKaRShRyHmKiFeaDTvkKucVZRJWZ6PMI",
+  authDomain: "prono-marrakech.firebaseapp.com",
+  projectId: "prono-marrakech",
+  storageBucket: "prono-marrakech.firebasestorage.app",
+  messagingSenderId: "142485331300",
+  appId: "1:142485331300:web:2fe358a4a78a675f032e71"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const DOC = db.collection('pronostics').doc('marrakech2025');
+
 function initState() {
   const s = {voted:{}, votes:{1:{},2:{},3:{}}};
   PLAYERS.forEach(p => { s.votes[1][p.nom]=0; s.votes[2][p.nom]=0; s.votes[3][p.nom]=0; });
   return s;
 }
-function saveState(s) { try { localStorage.setItem('mgProno2025', JSON.stringify(s)); } catch(e){} }
 
-let STATE = loadState();
+let unsubscribe = null;
+
+function startListening() {
+  if (unsubscribe) unsubscribe();
+  unsubscribe = DOC.onSnapshot(snap => {
+    if (snap.exists) {
+      STATE = snap.data();
+      // S'assurer que la structure votes existe
+      [1,2,3].forEach(r => {
+        if (!STATE.votes) STATE.votes = {};
+        if (!STATE.votes[r]) STATE.votes[r] = {};
+        if (!STATE.voted) STATE.voted = {};
+        PLAYERS.forEach(p => { if (STATE.votes[r][p.nom] === undefined) STATE.votes[r][p.nom] = 0; });
+      });
+    } else {
+      STATE = initState();
+    }
+    // Rafraîchir l'interface si connecté
+    if (currentUser) {
+      buildLoginList();
+      const activeTab = document.querySelector('.tab.active');
+      if (activeTab && activeTab.id === 'tab-results') renderResults();
+    } else {
+      buildLoginList();
+    }
+  }, err => console.error('Firebase error:', err));
+}
+
+async function saveState(s) {
+  try { await DOC.set(s); } catch(e) { console.error('Save error:', e); }
+}
+
+let STATE = initState();
+
+// Indicateur de connexion
+function showConnecting() {
+  const el = document.getElementById('login-list');
+  if (el) el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">Connexion en cours...</div>';
+}
 let currentUser = null;
 let isAdmin = false;
 let picks = [null,null,null];
@@ -389,7 +437,6 @@ function show(id) {
 function openApp() { show('screen-login'); buildLoginList(); }
 
 function buildLoginList() {
-  STATE = loadState();
   const list = document.getElementById('login-list');
   list.innerHTML = '';
   PLAYERS.forEach(p => {
@@ -461,12 +508,11 @@ function pickPlayer(nom) {
 
 function clearSlot(i) { picks[i] = null; updatePodium(); }
 
-function submitProno() {
+async function submitProno() {
   if (picks.some(x => !x)) return;
-  STATE = loadState();
   [1,2,3].forEach(r => { STATE.votes[r][picks[r-1]] = (STATE.votes[r][picks[r-1]]||0)+1; });
   STATE.voted[currentUser] = picks.slice();
-  saveState(STATE);
+  await saveState(STATE);
   hasVoted = true;
   const p = i => { const pl = PLAYERS.find(x => x.nom === picks[i]); return pl ? pl.prenom+' '+pl.nom : ''; };
   document.getElementById('rc-0').textContent = p(0);
@@ -564,19 +610,36 @@ function showVotedState() {
 
 function resetAll() {
   if (!isAdmin) return;
-  if (!confirm('Réinitialiser tous les votes ? Cette action est irréversible.')) return;
-  localStorage.removeItem('mgProno2025');
-  STATE = initState();
-  saveState(STATE);
-  picks = [null,null,null];
-  hasVoted = false;
-  alert('Tous les votes ont été effacés.');
-  show('screen-login');
-  buildLoginList();
+  showConfirm('Réinitialiser tous les votes ?', 'Cette action effacera tous les pronostics.', async () => {
+    STATE = initState();
+    await saveState(STATE);
+    picks = [null,null,null];
+    hasVoted = false;
+    show('screen-login');
+  });
+}
+
+function showConfirm(title, msg, onConfirm) {
+  const existing = document.getElementById('confirm-overlay');
+  if (existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'confirm-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;z-index:9999;';
+  overlay.innerHTML = `<div style="background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 28px;width:100%;max-width:430px;">
+    <div style="font-family:'DM Serif Display',serif;font-size:18px;color:#1e4620;margin-bottom:6px">${title}</div>
+    <div style="font-size:13px;color:#6b6b6b;margin-bottom:20px;line-height:1.5">${msg}</div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="document.getElementById('confirm-overlay').remove()" style="flex:1;background:#f5f0e8;color:#1a1a1a;border:none;border-radius:12px;padding:14px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;">Annuler</button>
+      <button id="confirm-ok" style="flex:1;background:#c0392b;color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;">Confirmer</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('confirm-ok').onclick = () => { overlay.remove(); onConfirm(); };
 }
 
 document.getElementById('screen-login').style.display = 'none';
 document.getElementById('screen-app').style.display = 'none';
+startListening();
 </script>
 </body>
 </html>
